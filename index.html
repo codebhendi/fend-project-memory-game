@@ -28,6 +28,9 @@
     <div class="restart">
       <i class="fa fa-repeat"></i>
     </div>
+    <div class="timer">
+      <span id="minutes">00</span>:<span id="seconds">00</span>
+    </div>
   </section>
 
   <ul class="deck">
@@ -89,10 +92,10 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Modal Header</h4>
+        <h4 class="modal-title">Yay, you have won!!!</h4>
       </div>
       <div class="modal-body">
-        <p>Some text in the modal.</p>
+        <p>You finished the game in <span id="score-modal">0</span> moves and it took you <span id="minutes-modal">00</span>:<span id="seconds-modal">00</span></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
