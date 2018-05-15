@@ -2,7 +2,15 @@
 
 ## Table of Contents
 
-* [Instructions](#instructions)
+* [Instructions]
+1. Start the game by opening the browser
+2. You should have an internet connection as it needs to download
+few files from the internet for the game to be played.
+3. Match the tiles in as few moves and as quickly as possible.
+4. When you have matched all the cards you have finished the game.
+5. You can use the restart button to restart the game.
+6. A display showing your current number of moves and time elapsed
+is on the right hand side of the table.
 * [Contributing](#contributing)
 
 ## Instructions
