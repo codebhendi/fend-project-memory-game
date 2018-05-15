@@ -1,7 +1,10 @@
 "use strict";
 window.onload = init;
-window.value_card = "";
-window.move_counter = 0;
+var minutesLabel = document.getElementById("minutes");
+var secondsLabel = document.getElementById("seconds");
+var totalSeconds;
+var interval;
+var open_cards = [];
 /*
  * Create a list that holds all of your cards
  */
@@ -40,16 +43,33 @@ function shuffle(array) {
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
 
+/**
+ * @description Init function, which starts eveything
+ * also adds event for the  restart button.
+ * @returns nothing
+ */
 function init() {
+  startGame();
   $(".restart").click(function () {
     location.reload();
   });
 
-  check_game_status();
+}
 
+/**
+ * @description Starts the game by setting values for initial variables.
+ * It shuffles all the card and then add the click event on all the cards.
+ * We also start a timer which starts as soon as the game starts and ends
+ * as soon as the game ends.
+ * @return nothing
+ */
+function startGame() {
+  totalSeconds = 0;
+  window.value_card = "";
   window.move_counter = 0;
+  window.move_counter = 0;
+  interval = setInterval(setTime, 1000);
 
-  setInterval(change_value, 1000);
   var array_cards = $("li.card");
 
   var ul_deck = $("ul.deck")[0];
@@ -65,49 +85,128 @@ function init() {
   addEvents(array_cards);
 }
 
+/**
+ * @description Adds click event to all cards which is sent by the calling function
+ * We add the clicked card to an array then check if it is the only card. If not we
+ * check if both cards are same this is done using the data-value attribute of each
+ * card. If they are same we set them both as match and remove the class "open show".
+ * We also empty out global array of open cards. If they are not same we will close
+ * by removing the "open show" class and removing the cards from global array. We
+ * also increase the number of moves if two different cards are clicked
+ * consecutively. If same card is clicked nothing happens. When two cards are matched
+ * we also check out if all the cards are matched. If all the cards are matched we
+ * end the game. If matched cards are clicked again nothing happens.
+ * @param arrayCards
+ */
 function addEvents(arrayCards) {
   for (var li of arrayCards) {
     li.addEventListener("click", function () {
-      if ($(this).hasClass("open")) {
+      console.log(open_cards);
+      if (this.classList.contains("match")) {
         return;
       }
 
+      for (var card of open_cards) {
+        if (this === card) {
+          return;
+        }
+      }
+
       $(this).addClass("open show");
+      open_cards.push(this);
+      if (open_cards[0] === this) {
+        return;
+      }
 
-      if (window.value_card === "") {
-        window.value_card = this.dataset.value;
-      } else if (window.value_card !== this.dataset.value) {
-        window.value_card = "";
-        window.move_counter += 1;
-
-        setTimeout(close_all, 800);
+      increaseScore();
+      if (open_cards[0].dataset.value === open_cards[1].dataset.value) {
+        for (var card of open_cards) {
+           $(card).addClass("match");
+           $(card).removeClass("open show");
+        }
+        open_cards = [];
+        checkCardsMatched();
       } else {
-        window.value_card = "";
-        window.move_counter += 1;
-
-        var li_match = $("ul").find("[data-value='" + this.dataset.value + "']");
-        $(li_match).addClass("match");
-
-        setTimeout(close_all, 500);
+        close_all();
       }
     });
   }
 }
 
+/**
+ * @description closes all the cards present in the global array after
+ * an interval of 0.5 seconds.
+ */
 function close_all() {
-  $("li.card").removeClass("open show");
+  setTimeout(function() {
+    for (var card of open_cards) {
+      $(card).removeClass("open show");
+    }
+
+    open_cards = [];
+  }, 500);
 }
 
-function change_value() {
+/**
+ * @description Increases score when it is called and shows the same on the
+ * scoreboard. It also checks if score has reached a certain threshold after
+ * which the stars are removed.
+ */
+function increaseScore() {
   var moves_counter = $(".moves")[0];
+  window.move_counter += 1;
   moves_counter.innerText = window.move_counter;
+
+  if (window.move_counter >= 14) {
+    var stars = $("ul.stars li");
+    if (stars.length === 3) {
+      stars[0].remove();
+    }
+  }
+  if (window.move_counter >= 20) {
+    var stars = $("ul.stars li");
+    if (stars.length == 2) {
+      stars[0].remove();
+    }
+  }
 }
 
-function check_game_status() {
+/**
+ * @description checks the cards that are matched and the count so that game can be ended.
+ * If the game is ended we display a bootstrap modal and clear the interval increasing
+ * the time. We display moves and time on the modal.
+ */
+function checkCardsMatched() {
   var card_match_count = $("li.card.match");
   if (card_match_count.length === 16) {
-    window.alert("Yay, you have won. Your final score is " + window.move_counter + ".");
+    clearInterval(interval);
+    $("#score-modal")[0].innerText = window.move_counter;
+    $("#minutes-modal")[0].innerText = pad(parseInt(totalSeconds / 60));
+    $("#seconds-modal")[0].innerText = pad(totalSeconds % 60);
+    $("#myModal").modal();
+  }
+}
+
+/**
+ * @description Increments time and display time passed in minutes and seconds
+ */
+function setTime() {
+  ++totalSeconds;
+  secondsLabel.innerHTML = pad(totalSeconds % 60);
+  minutesLabel.innerHTML = pad(parseInt(totalSeconds / 60));
+}
+
+/**
+ * @description check if the string passed has length greater than or equal to 2.
+ * If less then adds a zero at the beginning and returns the string.
+ * @param val
+ * @returns {string}
+ */
+function pad(val) {
+  var valString = val + "";
+  if (valString.length < 2) {
+    return "0" + valString;
   } else {
-    setTimeout(check_game_status, 1000);
+    return valString;
   }
 }
