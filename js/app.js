@@ -16,16 +16,16 @@ window.move_counter = 0;
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-    while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-    }
+  var currentIndex = array.length, temporaryValue, randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
 
-    return array;
+  return array;
 }
 
 
@@ -41,67 +41,73 @@ function shuffle(array) {
  */
 
 function init() {
-    $(".restart").click(function() {
-        location.reload();
-    });
+  $(".restart").click(function () {
+    location.reload();
+  });
 
-    check_game_status();
+  check_game_status();
 
-    window.move_counter = 0;
+  window.move_counter = 0;
 
-    setInterval(change_value, 1000);
-    var array_cards = $("li.card");
+  setInterval(change_value, 1000);
+  var array_cards = $("li.card");
 
-    var ul_deck = $("ul.deck")[0];
-    while (ul_deck.firstChild) {
-        ul_deck.removeChild(ul_deck.firstChild);
-    }
+  var ul_deck = $("ul.deck")[0];
+  while (ul_deck.firstChild) {
+    ul_deck.removeChild(ul_deck.firstChild);
+  }
 
-    array_cards = shuffle(array_cards)
-    for (var li of array_cards) {
-        ul_deck.appendChild(li);
-    }
+  array_cards = shuffle(array_cards)
+  for (var li of array_cards) {
+    ul_deck.appendChild(li);
+  }
 
-    addEvents(array_cards);
+  addEvents(array_cards);
 }
 
 function addEvents(arrayCards) {
-    for (var li of arrayCards) {
-        li.addEventListener("click", function() {
-            window.move_counter += 1;
-            $(this).addClass("open show");
+  for (var li of arrayCards) {
+    li.addEventListener("click", function () {
+      if ($(this).hasClass("open")) {
+        return;
+      }
 
-            if (window.value_card === "") {
-                window.value_card = this.dataset.value;
-            } else if (window.value_card !== this.dataset.value) {
-                window.value_card = "";
+      $(this).addClass("open show");
 
-                setTimeout(close_all, 800);
-            } else {
-                window.value_card = "";
-                var li_match = $("ul").find("[data-value='" + this.dataset.value + "']");
-                $(li_match).addClass("match");
+      if (window.value_card === "") {
+        window.value_card = this.dataset.value;
+      } else if (window.value_card !== this.dataset.value) {
+        window.value_card = "";
+        window.move_counter += 1;
 
-                setTimeout(close_all, 500);
-            }
-        });
-    }
+        setTimeout(close_all, 800);
+      } else {
+        window.value_card = "";
+        window.move_counter += 1;
+
+        var li_match = $("ul").find("[data-value='" + this.dataset.value + "']");
+        $(li_match).addClass("match");
+
+        setTimeout(close_all, 500);
+      }
+    });
+  }
 }
 
 function close_all() {
-    $("li.card").removeClass("open show");
+  $("li.card").removeClass("open show");
 }
 
 function change_value() {
-    var moves_counter = $(".moves")[0];
-    moves_counter.innerText = window.move_counter;
+  var moves_counter = $(".moves")[0];
+  moves_counter.innerText = window.move_counter;
 }
 
 function check_game_status() {
-    var card_match_count = $("li.card.match");
-    if (card_match_count.length === 16) {
-      window.alert("Yay, you have won. Your final score is " + window.move_counter + ".");
-    } else {
-        setTimeout(check_game_status, 1000);
-    }
+  var card_match_count = $("li.card.match");
+  if (card_match_count.length === 16) {
+    window.alert("Yay, you have won. Your final score is " + window.move_counter + ".");
+  } else {
+    setTimeout(check_game_status, 1000);
+  }
 }
